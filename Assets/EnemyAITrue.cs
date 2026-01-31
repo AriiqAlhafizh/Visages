@@ -11,7 +11,8 @@ public class EnemyAITrue : MonoBehaviour
 
     [Header("Stomp Logic")]
     public float bounceForce = 12f;
-    public Vector3 squishScale = new Vector3(1.2f, 0.2f, 1f);
+    // Make sure these are set to (1.2, 0.2, 1) in the Inspector
+    public Vector3 enemySquishScale = new Vector3(1.2f, 0.2f, 1f);
 
     [Header("Drop Settings")]
     public GameObject maskPrefabToDrop;
@@ -64,47 +65,37 @@ public class EnemyAITrue : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Calculate if the player is above the enemy
-            // Normal.y < -0.5 means the impact came from above
+            // Calculate if the player landed on top
             if (collision.contacts[0].normal.y < -0.5f)
             {
-                StartCoroutine(GetSquished(collision.gameObject));
+                // We pass the Rigidbody specifically so we don't touch the Player's Transform
+                StartCoroutine(ExecuteEnemySquish(collision.gameObject.GetComponent<Rigidbody2D>()));
             }
             else
             {
-                // Side collision: Player takes damage
                 collision.gameObject.GetComponent<PlayerHealth>()?.TakeDamage(1);
             }
         }
     }
 
-    // This handles the projectile hitting the enemy too!
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Projectile"))
-        {
-            // You can decide if projectiles squish them or just destroy them
-            Destroy(gameObject);
-            Destroy(collision.gameObject);
-        }
-    }
-
-    IEnumerator GetSquished(GameObject playerObj)
+    IEnumerator ExecuteEnemySquish(Rigidbody2D playerRb)
     {
         isDead = true;
+
+        // Disable enemy physics and collision immediately so it doesn't "carry" the player
         rb.linearVelocity = Vector2.zero;
-        rb.bodyType = RigidbodyType2D.Static; // Stop moving entirely
+        rb.bodyType = RigidbodyType2D.Static;
         GetComponent<Collider2D>().enabled = false;
 
-        // Bounce the player up
-        Rigidbody2D playerRb = playerObj.GetComponent<Rigidbody2D>();
+        // Bounce the player using physics only
         if (playerRb != null)
         {
             playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, bounceForce);
         }
 
-        // ONLY squish this enemy's sprite
-        transform.localScale = squishScale;
+        // SQUISH ONLY THIS ENEMY
+        // We use 'this.transform' to be 100% sure we aren't touching the player
+        this.transform.localScale = enemySquishScale;
 
         yield return new WaitForSeconds(0.2f);
 
@@ -116,11 +107,12 @@ public class EnemyAITrue : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.3f);
-        Destroy(gameObject);
+        Destroy(this.gameObject);
     }
 
     void FlipSprite()
     {
+        if (isDead) return;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
