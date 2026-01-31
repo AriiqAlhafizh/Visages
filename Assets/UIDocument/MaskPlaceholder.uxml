@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; justify-content: flex-end; align-content: flex-end;">
+        <ui:VisualElement name="MaskPlaceHolder" style="flex-grow: 1; -unity-background-image-tint-color: rgb(255, 255, 255); background-color: rgba(255, 0, 0, 0); min-width: 20%; min-height: 30%; max-width: 20%; max-height: 30%; align-self: flex-end; background-image: url(&quot;project://database/Assets/Sprites/Cutscene_1.png?fileID=5523860054190271710&amp;guid=87786154575fdd5428a3dcf5f6594b90&amp;type=3#Cutscene_1_0&quot;); -unity-slice-type: sliced;" />
+    </ui:VisualElement>
+</ui:UXML>
