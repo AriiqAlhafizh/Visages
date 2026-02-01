@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0bc30eb7350612479db2766f0adfb65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaskItem
-  maskType: 0
+  maskType: 2
 --- !u!61 &1261254063823803172
 BoxCollider2D:
   m_ObjectHideFlags: 0

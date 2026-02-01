@@ -295,14 +295,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 52889996}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4064833b90c7f2c43afdac90cf41f877, type: 3}
+  m_Script: {fileID: 11500000, guid: e6d62d93e1a10764d9e2c0f64cf1bfce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAITrue
   moveSpeed: 2
   chaseSpeed: 4
   patrolDistance: 5
   detectionRange: 5
-  bounceForce: 10
+  bounceForce: 12
   enemySquishScale: {x: 1.2, y: 0.2, z: 1}
   maskPrefabToDrop: {fileID: 6528955603337438927, guid: 2d6fc189bb83e044fb2af8a3c2225680, type: 3}
   dropForce: 5
