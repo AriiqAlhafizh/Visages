@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78842fc9c127d8748899b8e34416c35b, type: 3}
   m_Name: Dash_WallClimb
   m_EditorClassIdentifier: Assembly-CSharp::UIMaskPlaceholderSO
-  maskType: {fileID: -393244678080232440, guid: 9a4beb516f5b97c47b6c9cc7b02a9b31, type: 3}
+  maskType: {fileID: -2326571792010894135, guid: 9a4beb516f5b97c47b6c9cc7b02a9b31, type: 3}

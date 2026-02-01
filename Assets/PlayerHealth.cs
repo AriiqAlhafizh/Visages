@@ -3,10 +3,13 @@ using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int maxHealth = 2;
+    public int maxHealth = 5;
     public int currentHealth;
     public float invincibilityDuration = 2f;
     public float blinkInterval = 0.1f;
+
+    [Header("UI Reference")]
+    public HealthUI healthUI;
 
     private bool isInvincible = false;
     private SpriteRenderer spriteRenderer;
@@ -15,6 +18,7 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (healthUI != null) healthUI.SetHealthDisplay(currentHealth);
     }
 
     public void TakeDamage(int damage)
@@ -22,39 +26,32 @@ public class PlayerHealth : MonoBehaviour
         if (isInvincible) return;
 
         currentHealth -= damage;
-        Debug.Log("Health: " + currentHealth);
 
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            StartCoroutine(BecomeInvincible());
-        }
+        // Clamp health so it doesn't go below 0
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        if (healthUI != null) healthUI.SetHealthDisplay(currentHealth);
+
+        if (currentHealth <= 0) Die();
+        else StartCoroutine(BecomeInvincible());
     }
 
     private IEnumerator BecomeInvincible()
     {
         isInvincible = true;
-
-        // Blinking Effect
         float timer = 0;
         while (timer < invincibilityDuration)
         {
-            spriteRenderer.enabled = !spriteRenderer.enabled; // Toggle visibility
+            spriteRenderer.enabled = !spriteRenderer.enabled;
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
         }
-
-        spriteRenderer.enabled = true; // Ensure sprite is visible at the end
+        spriteRenderer.enabled = true;
         isInvincible = false;
     }
 
     void Die()
     {
-        Debug.Log("Player Dead!");
-        // Add reload scene or death animation here
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 }
