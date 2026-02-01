@@ -17,44 +17,33 @@ public class UIController : MonoBehaviour
 {
     [SerializeField] private UIDocument UImaskPlaceholder;
 
-    private MaskType currentMaskType = MaskType.Base;
+    public MaskType currentMaskType = MaskType.Base;
 
     private VisualElement root;
     public List<UIMaskPlaceholderSO> maskData;
+
+    public static UIController instance;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     private void Start()
     {
         root = UImaskPlaceholder.rootVisualElement.Q<VisualElement>("root");
-        changeMask(0);
+        changeMask();
 
     }
 
-    public void changeMask(int index)
+    public void changeMask()
     {
-        switch (index)
-        {
-            case 0:
-                currentMaskType = MaskType.Base;
-                break;
-            case 1:
-                currentMaskType = MaskType.Dash;
-                break;
-            case 2:
-                currentMaskType = MaskType.DoubleJump;
-                break;
-            case 3:
-                currentMaskType = MaskType.WallClimb;
-                break;
-            case 4:  
-                currentMaskType = MaskType.DashJump;
-                break;
-            case 5:
-                currentMaskType = MaskType.DashClimb;
-                break;
-            case 6:
-                currentMaskType = MaskType.JumpClimb;
-                break;
-        }
-
         root.dataSource = maskData[(int)currentMaskType];
     }
 }
