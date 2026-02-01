@@ -10,8 +10,13 @@ public class EnemyAITrue : MonoBehaviour
     public float detectionRange = 5f;
 
     [Header("Stomp Logic")]
-    public float bounceForce = 10f;
-    public Vector3 squishScale = new Vector3(1.2f, 0.2f, 1f);
+    public float bounceForce = 12f;
+    // Make sure these are set to (1.2, 0.2, 1) in the Inspector
+    public Vector3 enemySquishScale = new Vector3(1.2f, 0.2f, 1f);
+
+    [Header("Drop Settings")]
+    public GameObject maskPrefabToDrop;
+    public float dropForce = 5f;
 
     private Vector3 startPos;
     private int direction = 1;
@@ -23,90 +28,91 @@ public class EnemyAITrue : MonoBehaviour
     {
         startPos = transform.position;
         rb = GetComponent<Rigidbody2D>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
     }
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead || player == null) return;
 
         float distToPlayer = Vector2.Distance(transform.position, player.position);
-
-        if (distToPlayer < detectionRange)
-        {
-            ChasePlayer();
-        }
-        else
-        {
-            Patrol();
-        }
+        if (distToPlayer < detectionRange) ChasePlayer();
+        else Patrol();
     }
 
     void Patrol()
     {
-        transform.Translate(Vector2.right * direction * moveSpeed * Time.deltaTime);
-
+        rb.linearVelocity = new Vector2(direction * moveSpeed, rb.linearVelocity.y);
         if (Vector2.Distance(startPos, transform.position) >= patrolDistance)
         {
-            direction *= -1; // Reverse
+            direction *= -1;
             FlipSprite();
+            startPos = transform.position;
         }
     }
 
     void ChasePlayer()
     {
         float moveDir = (player.position.x > transform.position.x) ? 1 : -1;
-        transform.Translate(Vector2.right * moveDir * chaseSpeed * Time.deltaTime);
-
-        // Face the player
-        if ((moveDir > 0 && transform.localScale.x < 0) || (moveDir < 0 && transform.localScale.x > 0))
-        {
-            FlipSprite();
-        }
+        rb.linearVelocity = new Vector2(moveDir * chaseSpeed, rb.linearVelocity.y);
+        if ((moveDir > 0 && transform.localScale.x < 0) || (moveDir < 0 && transform.localScale.x > 0)) FlipSprite();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && !isDead)
+        if (isDead) return;
+
+        if (collision.gameObject.CompareTag("Player"))
         {
-            // Check if player is above the enemy
-            // Contact point 0 is the first point of impact
+            // Calculate if the player landed on top
             if (collision.contacts[0].normal.y < -0.5f)
             {
-                StartCoroutine(GetSquished(collision.gameObject));
+                // We pass the Rigidbody specifically so we don't touch the Player's Transform
+                StartCoroutine(ExecuteEnemySquish(collision.gameObject.GetComponent<Rigidbody2D>()));
             }
             else
             {
-                // Deal damage to player (uses the script we made earlier)
                 collision.gameObject.GetComponent<PlayerHealth>()?.TakeDamage(1);
             }
         }
     }
 
-    IEnumerator GetSquished(GameObject playerObj)
+    IEnumerator ExecuteEnemySquish(Rigidbody2D playerRb)
     {
         isDead = true;
+
+        // Disable enemy physics and collision immediately so it doesn't "carry" the player
         rb.linearVelocity = Vector2.zero;
-        rb.isKinematic = true; // Stop physics
+        rb.bodyType = RigidbodyType2D.Static;
         GetComponent<Collider2D>().enabled = false;
 
-        // Bounce the player up
-        Rigidbody2D playerRb = playerObj.GetComponent<Rigidbody2D>();
-        playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, bounceForce);
+        // Bounce the player using physics only
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, bounceForce);
+        }
 
-        // Visual Squish
-        transform.localScale = squishScale;
+        // SQUISH ONLY THIS ENEMY
+        // We use 'this.transform' to be 100% sure we aren't touching the player
+        this.transform.localScale = enemySquishScale;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
 
-        // Item drop placeholder
-        Debug.Log("Enemy dropped an item!");
+        if (maskPrefabToDrop != null)
+        {
+            GameObject droppedItem = Instantiate(maskPrefabToDrop, transform.position, Quaternion.identity);
+            Rigidbody2D itemRb = droppedItem.GetComponent<Rigidbody2D>();
+            if (itemRb != null) itemRb.AddForce(Vector2.up * dropForce, ForceMode2D.Impulse);
+        }
 
-        Destroy(gameObject);
+        yield return new WaitForSeconds(0.3f);
+        Destroy(this.gameObject);
     }
 
     void FlipSprite()
     {
+        if (isDead) return;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
