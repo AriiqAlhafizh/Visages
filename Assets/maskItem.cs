@@ -1,7 +1,5 @@
 using UnityEngine;
 
-public enum MaskType { Red, Blue, Yellow }
-
 public class MaskItem : MonoBehaviour
 {
     public MaskType maskType;

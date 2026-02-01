@@ -29,12 +29,13 @@ public class PlayerController : MonoBehaviour
     private Vector3 baseScale;
 
     [Header("Mask Stats")]
-    private int jumpsLeft;
+    public int jumpsLeft;
     private int maxJumps = 1;
     private bool canWallClimb = false;
 
     [Header("Checks")]
     private bool isGrounded;
+    private bool isFalling;
     private bool isTouchingWall;
     public Transform groundCheck;
     public Transform wallCheck;
@@ -42,9 +43,19 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayer;
     public LayerMask wallLayer;
 
+    [Header("Animation")]
+    private Animator animator;
+    private MaskController mc;
+
+    [Header("Sounds")]
+    private PlayerSFX playerSFX;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        mc = GetComponent<MaskController>();
+        playerSFX = GetComponent<PlayerSFX>();
         baseScale = transform.localScale;
     }
 
@@ -63,7 +74,7 @@ public class PlayerController : MonoBehaviour
 
         // --- DASH INPUT (Blue Mask) ---
         // Triggered by Left Shift (standard) or your choice of key
-        if (Input.GetKeyDown(KeyCode.LeftShift) && dashesLeft > 0 && currentMask == MaskType.Blue)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashesLeft > 0 && currentMask == MaskType.Dash)
         {
             StartCoroutine(Dash());
         }
@@ -97,6 +108,7 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = true;
         dashesLeft--;
+        playerSFX.PlayDashSFX();
 
         // Store original gravity so we can turn it off
         float originalGravity = rb.gravityScale;
@@ -120,6 +132,8 @@ public class PlayerController : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         jumpsLeft--;
+        animator.SetTrigger("Jump");
+        playerSFX.PlayJumpSFX();
     }
 
     void DoWallJump()
@@ -127,6 +141,8 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         float pushDir = transform.localScale.x > 0 ? -1f : 1f;
         rb.linearVelocity = new Vector2(pushDir * wallJumpSideForce, jumpForce);
+        animator.SetTrigger("Jump");
+        playerSFX.PlayJumpSFX();
     }
 
     void BetterGravity()
@@ -134,20 +150,29 @@ public class PlayerController : MonoBehaviour
         if (canWallClimb && isTouchingWall) return;
 
         if (rb.linearVelocity.y < 0)
+        {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            if (!isGrounded && !isFalling)
+            {
+                animator.SetBool("isFalling", true);
+                animator.ResetTrigger("Jump");
+            }
+        }
+
         else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
     }
 
     public void EquipMask(MaskType newMask)
     {
+        mc.SetActiveMask(newMask);
         currentMask = newMask;
         hasMask = true;
 
         // Reset/Update stats based on mask
-        maxJumps = (newMask == MaskType.Red) ? 2 : 1;
-        maxDashes = (newMask == MaskType.Blue) ? 2 : 0; // Blue mask gets 2 dashes
-        canWallClimb = (newMask == MaskType.Yellow);
+        maxJumps = (newMask == MaskType.DoubleJump) ? 1 : 0;
+        maxDashes = (newMask == MaskType.Dash) ? 2 : 0; // Blue mask gets 2 dashes
+        canWallClimb = (newMask == MaskType.WallClimb);
 
         jumpsLeft = maxJumps;
         dashesLeft = maxDashes;
@@ -160,7 +185,7 @@ public class PlayerController : MonoBehaviour
         {
             float lookDir = transform.localScale.x > 0 ? 0 : 180;
             Instantiate(projectilePrefabs[index], shootPoint.position, Quaternion.Euler(0, lookDir, 0));
-            if (currentMask == MaskType.Yellow)
+            if (currentMask == MaskType.WallClimb)
             {
                 Instantiate(projectilePrefabs[index], shootPoint.position, Quaternion.Euler(0, lookDir, 15));
                 Instantiate(projectilePrefabs[index], shootPoint.position, Quaternion.Euler(0, lookDir, -15));
@@ -171,6 +196,18 @@ public class PlayerController : MonoBehaviour
     void PerformChecks()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+        if (isGrounded) 
+        {
+            isFalling = false;
+            animator.SetBool("isFalling", false);
+        }
+        if (isGrounded && rb.linearVelocityX != 0) {
+            animator.SetBool("isWalking", true);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
         isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, checkRadius, wallLayer);
     }
 }

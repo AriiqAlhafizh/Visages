@@ -10,9 +10,16 @@ public class MaskController : MonoBehaviour
     private void Start()
     {
         pa = GetComponent<Animator>();
+        pa.runtimeAnimatorController = activeMasks[0];
     }
     public void SetActiveMask(int id)
     {
         pa.runtimeAnimatorController = activeMasks[id];
+    }
+
+    public void SetActiveMask(MaskType maskType)
+    {
+        currentMaskIndex = (int)maskType;
+        pa.runtimeAnimatorController = activeMasks[currentMaskIndex];
     }
 }
