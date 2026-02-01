@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; align-items: center; justify-content: center; align-content: auto; align-self: auto;">
+        <ui:Label text="VISAGE" style="align-items: center; justify-content: space-between; align-self: center; min-width: 80%; align-content: stretch; min-height: 10%; left: 0; right: 0; flex-direction: column; background-position-x: center; background-position-y: center; -unity-background-scale-mode: stretch-to-fill;" />
+        <ui:Button text="Button" />
+        <ui:Button text="Button" />
+    </ui:VisualElement>
+</ui:UXML>
