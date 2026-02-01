@@ -86,13 +86,13 @@ public class EnemyAI1 : MonoBehaviour
     IEnumerator GetSquished(GameObject playerObj)
     {
         isDead = true;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.isKinematic = true; // Stop physics
         GetComponent<Collider2D>().enabled = false;
 
         // Bounce the player up
         Rigidbody2D playerRb = playerObj.GetComponent<Rigidbody2D>();
-        playerRb.velocity = new Vector2(playerRb.velocity.x, bounceForce);
+        playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, bounceForce);
 
         // Visual Squish
         transform.localScale = squishScale;
