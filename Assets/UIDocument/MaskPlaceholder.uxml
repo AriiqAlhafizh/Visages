@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" data-source="project://database/Assets/ScriptableObjects/MaskSprite/Dash_DoubleJump.asset?fileID=11400000&amp;guid=5860939d10c96194ead1b4225643fa19&amp;type=2#Dash_DoubleJump" style="flex-grow: 1; justify-content: flex-end; align-content: flex-end;">
+        <ui:VisualElement name="MaskPlaceHolder" style="flex-grow: 1; -unity-background-image-tint-color: rgb(255, 255, 255); background-color: rgba(255, 0, 0, 0); min-width: 300px; min-height: 300px; max-width: 300px; max-height: 300px; align-self: flex-end; background-image: none; -unity-slice-type: sliced; margin-right: 3%; margin-bottom: 20px; width: 300px; height: 300px;">
+            <Bindings>
+                <ui:DataBinding property="style.backgroundImage" data-source-path="maskType" binding-mode="ToTarget" />
+            </Bindings>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
